@@ -73,7 +73,7 @@ function scheduleTask() {
   if (platform === "win32") {
     // Command for Windows Task Scheduler
     const taskName = "OrganizeDownloads";
-    const taskCommand = `schtasks /create /tn "${taskName}" /tr "node ${scriptPath}" /sc hourly /mo 6 /f`;
+    const taskCommand = `schtasks /create /tn "${taskName}" /tr "node ${scriptPath}" /sc minute /mo 30 /f`;
     exec(taskCommand, (error, stdout, stderr) => {
       if (error) {
         console.error("Erreur lors de la planification de la tâche :", stderr);
