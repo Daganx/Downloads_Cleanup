@@ -102,7 +102,7 @@ function startInteraction() {
   });
 
   rl.question(
-    "Voulez-vous réorganiser vos téléchargements automatiquement toutes les 6h ? (Oui/Non) : ",
+    "Voulez-vous réorganiser vos téléchargements automatiquement toutes les 30 minutes ? (Oui/Non) : ",
     (answer) => {
       if (answer.toLowerCase() === "oui") {
         console.log("Configuration de la tâche automatique...");
