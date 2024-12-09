@@ -1,8 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 const readline = require("readline");
-const { exec } = require("child_process");
-const { stdout, stderr } = require("process");
 
 const DOWNLOAD_FOLDER = path.join(require("os").homedir(), "Downloads");
 
@@ -28,7 +26,7 @@ const FILES_TYPES = {
 function organizeDownloads() {
   fs.readdir(DOWNLOAD_FOLDER, (err, files) => {
     if (err) {
-      console.error("Erreur lors de la lecture de dossier :", err);
+      console.error("Erreur lors de la lecture du dossier :", err);
       return;
     }
 
@@ -51,7 +49,7 @@ function organizeDownloads() {
           const destinationPath = path.join(destinationFolder, file);
           fs.rename(filePath, destinationPath, (err) => {
             if (err) {
-              console.error("Erreur lors du déplacement du fichier");
+              console.error("Erreur lors du déplacement du fichier :", err);
             } else {
               console.log(`Fichier déplacé : ${file} -> ${folderName}`);
             }
@@ -62,58 +60,20 @@ function organizeDownloads() {
   });
 }
 
-function scheduleTask() {
-  const scriptPath = path.resolve(process.argv[1]);
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
-  // Command for macOS/Linux
-  const cronCommand = `node ${scriptPath}`;
-  const cronJob = `*/30 * * * * ${cronCommand}`;
-
-  const platform = process.platform;
-  if (platform === "win32") {
-    // Command for Windows Task Scheduler
-    const taskName = "OrganizeDownloads";
-    const taskCommand = `schtasks /create /tn "${taskName}" /tr "node ${scriptPath}" /sc minute /mo 30 /f`;
-    exec(taskCommand, (error, stdout, stderr) => {
-      if (error) {
-        console.error("Erreur lors de la planification de la tâche :", stderr);
-      } else {
-        console.log("Tâche planifiée avec succès", stdout);
-      }
-    });
-  } else {
-    // Command for macOS/Linux using cron
-    const addCronCommand = `crontab -l 2>/dev/null | { cat; echo "${cronJob}"; } | crontab -`;
-
-    exec(addCronCommand, (error, stdout, stderr) => {
-      if (error) {
-        console.error("Erreur lors de la configuration de cron :", stderr);
-      } else {
-        console.log("Tâche cron ajoutée avec succès");
-      }
-    });
-  }
-}
-
-function startInteraction() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  rl.question(
-    "Voulez-vous réorganiser vos téléchargements automatiquement toutes les 30 minutes ? (Oui/Non) : ",
-    (answer) => {
-      if (answer.toLowerCase() === "oui") {
-        console.log("Configuration de la tâche automatique...");
-        scheduleTask();
-        organizeDownloads();
-      } else {
-        console.log("Réorganisation annnulée.");
-      }
-      rl.close();
+rl.question(
+  "Voulez-vous réorganiser vos téléchargements ? (oui/non) ",
+  (answer) => {
+    if (answer.toLowerCase() === "oui") {
+      console.log("Réorganisation en cours...");
+      organizeDownloads();
+    } else {
+      console.log("Opération annulée.");
     }
-  );
-}
-
-startInteraction();
+    rl.close();
+  }
+);
